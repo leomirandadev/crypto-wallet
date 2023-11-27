@@ -13,6 +13,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const (
+	receiverWallet = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+	ethereumURL    = "https://rinkeby.infura.io"
+)
+
 func main() {
 	wallet, err := rail.GenerateWallet(rail.Ethereum)
 	if err != nil {
@@ -21,7 +26,7 @@ func main() {
 	printJSON("Wallet successfuly generated:", wallet)
 
 	var (
-		eclient         = clients.NewEthereum("https://rinkeby.infura.io")
+		eclient         = clients.NewEthereum(ethereumURL)
 		ctx             = context.Background()
 		nonce    uint64 = 0
 		contract        = []byte("")
@@ -30,7 +35,7 @@ func main() {
 	tr := models.Transaction{
 		GasPrice:  big.NewInt(20000000000),
 		GasLimit:  uint64(21000),
-		ToAddress: common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e"),
+		ToAddress: common.HexToAddress(receiverWallet),
 		Value:     big.NewInt(1000000000000000000),
 	}
 
