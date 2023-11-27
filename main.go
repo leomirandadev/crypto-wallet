@@ -20,21 +20,21 @@ func main() {
 	}
 	printJSON("Wallet successfuly generated:", wallet)
 
-	transaction := models.Transaction{
+	var (
+		eclient         = clients.NewEthereum("https://rinkeby.infura.io")
+		ctx             = context.Background()
+		nonce    uint64 = 0
+		contract        = []byte("")
+	)
+
+	tr := models.Transaction{
 		GasPrice:  big.NewInt(20000000000),
 		GasLimit:  uint64(21000),
 		ToAddress: common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e"),
 		Value:     big.NewInt(1000000000000000000),
 	}
-	eTx := transaction.ToEthereum(0, []byte(""))
-	printJSON("Transaction:", eTx)
 
-	var (
-		eclient = clients.NewEthereum("https://rinkeby.infura.io")
-		ctx     = context.Background()
-	)
-
-	signTransaction, err := eclient.Sign(ctx, eTx, wallet.PrivateKey)
+	signTransaction, err := eclient.Sign(ctx, tr, wallet.PrivateKey, nonce, contract)
 	if err != nil {
 		log.Fatal("sign transaction fails", err)
 	}

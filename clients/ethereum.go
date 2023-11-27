@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"crypto-wallet/models"
 	"log"
 
 	"github.com/ethereum/go-ethereum/core/types"
@@ -22,7 +23,7 @@ type ethereumClient struct {
 	client *ethclient.Client
 }
 
-func (c ethereumClient) Sign(ctx context.Context, tx *types.Transaction, privateKeyStr string) (*types.Transaction, error) {
+func (c ethereumClient) Sign(ctx context.Context, tr models.Transaction, privateKeyStr string, nonce uint64, contract []byte) (*types.Transaction, error) {
 	chainID, err := c.client.NetworkID(ctx)
 	if err != nil {
 		return nil, err
@@ -33,9 +34,22 @@ func (c ethereumClient) Sign(ctx context.Context, tx *types.Transaction, private
 		return nil, err
 	}
 
+	tx := TransactionToEthereum(tr, nonce, contract)
+
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
 		return nil, err
 	}
 	return signedTx, nil
+}
+
+func TransactionToEthereum(tr models.Transaction, nonce uint64, contract []byte) *types.Transaction {
+	return types.NewTx(&types.LegacyTx{
+		Nonce:    nonce,
+		GasPrice: tr.GasPrice,
+		Gas:      tr.GasLimit,
+		To:       &tr.ToAddress,
+		Value:    tr.Value,
+		Data:     contract,
+	})
 }
